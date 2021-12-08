@@ -3,7 +3,6 @@ using MQTTnet;
 using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Disconnecting;
 using MQTTnet.Client.Options;
-using MQTTnet.Client.Receiving;
 using MQTTnet.Extensions.ManagedClient;
 using System.Text;
 using System.Text.Json;
@@ -12,7 +11,6 @@ namespace SmartCameraSimulator;
 public class Simulator
 {
     IManagedMqttClient _mqttClient;
-    private string responseTopic;
     private ApplicationConfiguration configuration;
 
     public Simulator()
@@ -109,9 +107,9 @@ public class Simulator
             PassDateTime = DateTime.Now,
             Log = CreateRandomString()
         };
-        Console.WriteLine(telemetry.CardId);
-        Console.WriteLine(telemetry.PassDateTime.ToString());
-        Console.WriteLine(telemetry.Log);
+
+        var publishTopic = "v1/devices/camera/telemetry";
+        _mqttClient.PublishAsync(publishTopic, JsonSerializer.Serialize(telemetry));
     }
 
     private string CreateRandomString()
@@ -125,90 +123,3 @@ public class Simulator
         return sb.ToString();
     }
 }
-/*
-private async void UseRandomPass()
-{
-    PassageAttempt pass = new PassageAttempt(Guid.NewGuid().ToString(), configuration.TourniquetId, DateTime.Now);
-    await MakeApiRequestAndGetAnswer(pass);
-    //Из-за подписочной модели следующее действие неявно приходит с помощью события
-    //Дальше должен срабатывать метод ParseAnswer
-}
-
-private async void UsePassFromInput()
-{
-    Console.WriteLine("Введите ID пропуска");
-    PassageAttempt passageAttempt = new PassageAttempt(Console.ReadLine().Trim(), configuration.TourniquetId, DateTime.Now);
-    await MakeApiRequestAndGetAnswer(passageAttempt);
-    //Из-за подписочной модели следующее действие неявно приходит с помощью события
-    //Дальше должен срабатывать метод ParseAnswer
-    //Привет от goto
-}
-
-private async Task MakeApiRequestAndGetAnswer(PassageAttempt passageAttempt)
-{
-    var requestId = new Random().Next();
-    var requestTopic = "v1/devices/me/rpc/request/" + requestId.ToString();
-    responseTopic = "v1/devices/me/rpc/response/" + requestId.ToString();
-    await _mqttClient.SubscribeAsync(responseTopic); //Подписываемся на ответ
-
-    Console.WriteLine();
-    Console.WriteLine($"Is Connected: {_mqttClient.IsConnected}");
-    Console.WriteLine("Request Topic: " + requestTopic);
-    Console.WriteLine("Response Topic: " + responseTopic);
-
-    Console.WriteLine(JsonSerializer.Serialize(new RpcValidatePassRequest()
-    {
-        Method = "validatePass",
-        Params = passageAttempt
-    }).Replace("Method", "method").Replace("Params", "params"));
-
-    //Делаем запрос
-    await _mqttClient.PublishAsync(requestTopic, JsonSerializer.Serialize(new RpcValidatePassRequest()
-    {
-        Method = "validatePass",
-        Params = passageAttempt
-    }).Replace("Method", "method").Replace("Params", "params"));
-
-    Console.WriteLine();
-
-    Task.Delay(1000).Wait();
-}
-
-
-private async Task ParseAnswer(MqttApplicationMessageReceivedEventArgs obj)
-{
-    Console.WriteLine();
-    Console.WriteLine("ParseAnswer: Received answer");
-    await _mqttClient.UnsubscribeAsync(responseTopic);
-    Console.WriteLine("ReasonCode: " + obj.ReasonCode);
-    var message = obj.ApplicationMessage.ConvertPayloadToString();
-
-    Console.WriteLine("Message Contents: " + message);
-
-    var options = new JsonSerializerOptions
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
-    var passageAnswer = JsonSerializer.Deserialize<PassageAnswer>(message, options);
-    TourniquetActOnAnswer(passageAnswer);
-
-    Console.WriteLine();
-}
-
-private void TourniquetActOnAnswer(PassageAnswer result)
-{
-    if (result.Answer)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("Проход разрешен.");
-        Console.ForegroundColor = ConsoleColor.White;
-    }
-    else
-    {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("Проход запрещен.");
-        Console.ForegroundColor = ConsoleColor.White;
-    }
-}
-}*/
