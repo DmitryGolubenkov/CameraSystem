@@ -108,9 +108,6 @@ public class Simulator
             Log = CreateRandomString()
         };
 
-        Console.WriteLine(telemetry.CardId);
-        Console.WriteLine(telemetry.PassDateTime);
-        Console.WriteLine(telemetry.Log.Substring(0,100));
         var publishTopic = "v1/devices/camera/telemetry";
         _mqttClient.PublishAsync(publishTopic, JsonSerializer.Serialize(telemetry));
     }
