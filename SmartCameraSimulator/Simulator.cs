@@ -70,32 +70,32 @@ public class Simulator
     {
         while (true)
         {
-            //Console.WriteLine();
-            //Console.WriteLine("1. Отправить сигнал с турникета");
-            //Console.WriteLine("q. Выход");
-            //var input = Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("1. Отправить сигнал с турникета");
+            Console.WriteLine("q. Выход");
+            var input = Console.ReadLine();
 
-            //if (char.TryParse(input, out char c))
-            //{
-            //    switch (c)
-            //    {
-            //        case '1':
-            //            OnTourniquetSignal();
-            //            break;
+            if (char.TryParse(input, out char c))
+            {
+                switch (c)
+                {
+                    case '1':
+                        OnTourniquetSignal();
+                        break;
 
-            //        case 'q':
-            //            return;
+                    case 'q':
+                        return;
 
-            //        default:
-            //            Console.WriteLine("Ошибка: введен несуществующий вариант");
-            //            break;
-            //    }
-            //}
-            //else
-            //{
-            //    Console.WriteLine("Ошибка: неверный ввод.");
-            //    continue;
-            //}
+                    default:
+                        Console.WriteLine("Ошибка: введен несуществующий вариант");
+                        break;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Ошибка: неверный ввод.");
+                continue;
+            }
         }
     }
 
@@ -116,10 +116,13 @@ public class Simulator
     {
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
-        for (int i = 0; i < 100000; i++)
+        var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (int i = 0; i < 1000; i++)
         {
-            sb.Append((char)random.Next(65, 100));
+            sb.Append(chars[random.Next(chars.Length)]);
         }
+
         return sb.ToString();
     }
 }
