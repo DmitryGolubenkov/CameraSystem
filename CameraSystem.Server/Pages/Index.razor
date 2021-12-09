@@ -1,0 +1,77 @@
+﻿@page "/"
+@using CameraSystem.Shared
+@using CameraSystem.Server.Data
+@inject VideoDataDb db
+
+<PageTitle>Архив</PageTitle>
+
+@if(@_telemetryList is not null) 
+{
+    @if(_telemetryList.Count > 0) 
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>ID пропуска</th>
+                    <th>Дата и время</th>
+                    <th>Binary</th>
+                    <th></th>
+                </tr>
+            </thead>
+        @foreach(var telemetry in _telemetryList) 
+        {
+            <tbody>
+                <tr>
+                    <td>@telemetry.LogId</td>
+                    <td>@telemetry.CardId</td>
+                    <td>@telemetry.PassDateTime</td>
+                        <td>@if (telemetry.Log.Length > 100)
+                            {
+                                @telemetry.Log.Substring(0,100)
+                            } 
+                            else
+                            {
+                                @telemetry.Log
+                            }
+                        </td>
+                        <td><button @onclick="()=> RemoveVideo(telemetry)">Удалить</button></td>
+                </tr>
+            </tbody>
+        }
+        </table>
+    }
+    else
+    {
+        <div>Сохраненных данных не найдено.</div>
+    }
+}
+else 
+{
+    <div>@text</div>
+}
+
+@code {
+    private List<LoggedCameraTelemetry> _telemetryList;
+    private string text = "Идёт загрузка, пожалуйста, подождите";
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            _telemetryList = db.CameraTelemetries.ToList();
+        }
+        catch
+        {
+            text = "Произошла ошибка при загрузке данных. Для продолжения обновите страницу.";
+        }
+    }
+
+    private void RemoveVideo(LoggedCameraTelemetry cameraTelemetry)
+    {
+        db.CameraTelemetries.Remove(cameraTelemetry);
+        db.SaveChanges();
+        _telemetryList.Remove(cameraTelemetry);
+        StateHasChanged();
+    }
+}
