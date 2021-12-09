@@ -57,14 +57,14 @@ else
 
     protected override void OnInitialized()
     {
-        try
-        {
+        //try
+        //{
             _telemetryList = db.CameraTelemetries.ToList();
-        }
-        catch
-        {
+        //}
+        //catch
+        //{
             text = "Произошла ошибка при загрузке данных. Для продолжения обновите страницу.";
-        }
+        //}
     }
 
     private void RemoveVideo(LoggedCameraTelemetry cameraTelemetry)
